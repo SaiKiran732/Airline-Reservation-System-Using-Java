@@ -1,0 +1,175 @@
+import java.util.*;
+class Flight {
+    int flightNumber;
+    String source;
+    String destination;
+    int seatsAvailable;
+    double price;
+
+    public Flight(int flightNumber, String source, String destination, int seatsAvailable, double price) {
+        this.flightNumber = flightNumber;
+        this.source = source;
+        this.destination = destination;
+        this.seatsAvailable = seatsAvailable;
+        this.price = price;
+    }
+
+    public void displayFlightDetails() {
+        System.out.println("----------------------------------");
+        System.out.println("Flight Number: " + flightNumber);
+        System.out.println("Source: " + source);
+        System.out.println("Destination: " + destination);
+        System.out.println("Seats Available: " + seatsAvailable);
+        System.out.println("Price per ticket: ₹" + price);
+        System.out.println("----------------------------------");
+    }
+}
+
+class Passenger {
+    String name;
+    int age;
+    String gender;
+    int flightNumber;
+
+    public Passenger(String name, int age, String gender, int flightNumber) {
+        this.name = name;
+        this.age = age;
+        this.gender = gender;
+        this.flightNumber = flightNumber;
+    }
+
+    public void displayPassengerDetails() {
+        System.out.println("----------------------------------");
+        System.out.println("Name: " + name);
+        System.out.println("Age: " + age);
+        System.out.println("Gender: " + gender);
+        System.out.println("Flight Number: " + flightNumber);
+        System.out.println("----------------------------------");
+    }
+}
+
+public class AirlineReservationSystem {
+    static Scanner sc = new Scanner(System.in);
+    static ArrayList<Flight> flights = new ArrayList<>();
+    static ArrayList<Passenger> passengers = new ArrayList<>();
+
+    public static void main(String[] args) {
+        initializeFlights();
+
+        int choice;
+        do {
+            System.out.println("\n====== ✈ Airline Reservation System ======");
+            System.out.println("1. View Available Flights");
+            System.out.println("2. Book a Ticket");
+            System.out.println("3. View Passenger List");
+            System.out.println("4. Cancel Booking");
+            System.out.println("5. Exit");
+            System.out.print("Enter your choice: ");
+            choice = sc.nextInt();
+
+            switch (choice) {
+                case 1 -> viewFlights();
+                case 2 -> bookTicket();
+                case 3 -> viewPassengers();
+                case 4 -> cancelBooking();
+                case 5 -> System.out.println("Thank you for using Airline Reservation System!");
+                default -> System.out.println("Invalid choice. Please try again.");
+            }
+        } while (choice != 5);
+    }
+
+    public static void initializeFlights() {
+        flights.add(new Flight(101, "Delhi", "Mumbai", 5, 4500));
+        flights.add(new Flight(102, "Hyderabad", "Bangalore", 3, 3200));
+        flights.add(new Flight(103, "Chennai", "Kolkata", 4, 5500));
+        flights.add(new Flight(104, "Pune", "Delhi", 6, 4100));
+    }
+
+    public static void viewFlights() {
+        System.out.println("\nAvailable Flights:");
+        for (Flight f : flights) {
+            f.displayFlightDetails();
+        }
+    }
+
+    public static void bookTicket() {
+        System.out.print("Enter Flight Number to book: ");
+        int flightNo = sc.nextInt();
+
+        Flight selectedFlight = null;
+        for (Flight f : flights) {
+            if (f.flightNumber == flightNo) {
+                selectedFlight = f;
+                break;
+            }
+        }
+
+        if (selectedFlight == null) {
+            System.out.println("Invalid flight number.");
+            return;
+        }
+
+        if (selectedFlight.seatsAvailable <= 0) {
+            System.out.println("Sorry, no seats available on this flight.");
+            return;
+        }
+
+        System.out.print("Enter your name: ");
+        sc.nextLine(); // consume leftover newline
+        String name = sc.nextLine();
+        System.out.print("Enter your age: ");
+        int age = sc.nextInt();
+        System.out.print("Enter your gender: ");
+        sc.nextLine(); // consume newline
+        String gender = sc.nextLine();
+
+        Passenger p = new Passenger(name, age, gender, flightNo);
+        passengers.add(p);
+        selectedFlight.seatsAvailable--;
+
+        System.out.println("\nBooking Successful!");
+        System.out.println("Ticket Details:");
+        p.displayPassengerDetails();
+        System.out.println("Total Fare: ₹" + selectedFlight.price);
+    }
+
+    public static void viewPassengers() {
+        if (passengers.isEmpty()) {
+            System.out.println("No passengers have booked yet.");
+            return;
+        }
+        System.out.println("\nPassenger List:");
+        for (Passenger p : passengers) {
+            p.displayPassengerDetails();
+        }
+    }
+
+    public static void cancelBooking() {
+        System.out.print("Enter Passenger Name to cancel booking: ");
+        sc.nextLine();
+        String name = sc.nextLine();
+
+        Passenger toRemove = null;
+        for (Passenger p : passengers) {
+            if (p.name.equalsIgnoreCase(name)) {
+                toRemove = p;
+                break;
+            }
+        }
+
+        if (toRemove == null) {
+            System.out.println("No booking found with that name.");
+            return;
+        }
+
+        for (Flight f : flights) {
+            if (f.flightNumber == toRemove.flightNumber) {
+                f.seatsAvailable++;
+                break;
+            }
+        }
+
+        passengers.remove(toRemove);
+        System.out.println("Booking cancelled successfully for " + name + ".");
+    }
+}
